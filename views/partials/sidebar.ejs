@@ -1,0 +1,60 @@
+<div class="sidebar" data-color="purple" data-background-color="white" data-image="../assets/img/sidebar-1.jpg">
+    <!--
+Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
+
+Tip 2: you can also add an image using data-image tag
+-->
+    <div class="logo">
+        <a href="http://www.creative-tim.com" class="simple-text logo-normal">
+            V-PRO
+        </a>
+    </div>
+    <div class="sidebar-wrapper">
+        <ul class="nav">
+            <li class="nav-item <% if(title == 'Dashboard'){%> active <% } %> ">
+                <a class="nav-link" href="/">
+                    <i class="material-icons">dashboard</i>
+                    <p>Home</p>
+                </a>
+            </li>
+            <li class="nav-item <% if(title == 'Add Subject'){%> active <% } %>">
+                <a class="nav-link" href="/add_subject">
+                    <i class="material-icons">person</i>
+                    <p>Add Subject</p>
+                </a>
+            </li>
+            <li class="nav-item <% if(title == 'New Parent'){%> active <% } %>">
+                <a class="nav-link" href="/register_parent">
+                    <i class="material-icons">person</i>
+                    <p>Register Parent</p>
+                </a>
+            </li>
+            <li class="nav-item <% if(title == 'Admission Form'){%> active <% } %>">
+                <a class="nav-link" href="/register_student">
+                    <i class="material-icons">content_paste</i>
+                    <p>Register Student</p>
+                </a>
+            </li>
+            <li class="nav-item <% if(title == 'Pay Tuition'){%> active <% } %>">
+                <a class="nav-link" href="/pay_tuition">
+                    <i class="material-icons">library_books</i>
+                    <p>Pay Tuition</p>
+                </a>
+            </li>
+           
+            <li class="nav-item ">
+                <a class="nav-link" href="../examples/maps.html">
+                    <i class="material-icons">settings</i>
+                    <p>Account Setings</p>
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a class="nav-link" href="/logout">
+                    <i class="material-icons">notifications</i>
+                    <p>Logout</p>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
