@@ -18,6 +18,10 @@ router.get('/current_user',(req,res,next)=>{
   }
 })
 
+router.get('/login',(req,res,next) =>{
+  res.render('login');
+})
+
 router.get('/register_student',(req,res,next) => {
   res.render('dashboard/register_student',{ title: 'Admission Form'});
 })
