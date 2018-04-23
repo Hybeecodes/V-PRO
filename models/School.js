@@ -50,5 +50,9 @@ const SchoolSchema = new Schema({
 
 const School = mongoose.model('School',SchoolSchema);
 
+function deleteSchool(school_id) {
+    
+}
+
 module.exports = School;
 

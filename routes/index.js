@@ -20,7 +20,9 @@ router.get('/current_user',(req,res,next)=>{
 
 router.get('/login',(req,res,next) =>{
   res.render('login');
-})
+});
+
+
 
 router.get('/register',(req,res,next) =>{
   res.render('register');
@@ -69,7 +71,7 @@ router.post('/login',(req,res,next)=>{
         req.session.user_session = school._id;
         res.json({status:1,message:school});
       }
-    })
+    });
 });
 
 router.post('/school',(req,res,next)=>{
