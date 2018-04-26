@@ -9,6 +9,7 @@ const bcrypt = require('bcrypt-nodejs');
 const moment = require('moment');
 const Student = require('../models/Student');
 const Parent = require('../models/parent');
+const Class = require('../models/Class');
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -152,6 +153,20 @@ router.post('/register',(req,res,next)=>{
     res.json({status:0,message:"Sorry, request body is empty"});
   }
 });
+
+// add new class
+router.post('/add_class',(req,res,next)=>{
+  if(req.body.name == undefined || req.body.nickname == undefined || req.body.school ){
+    res.json({status:0,message:"Sorry, One or more credentials missing"});
+  }else{
+    // check if class exists already
+    Class.findOne({school_id:req.body.school},(err,class)=>{
+      if(err){
+        res.json({status:0,message:"Sorry,An Error Occured"});
+      }
+    })
+  }
+})
 
 // add new student
 router.post('/register_student',(req,res,next)=>{
