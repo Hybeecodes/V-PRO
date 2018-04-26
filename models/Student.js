@@ -6,6 +6,10 @@ const StudentSchema = new Schema({
         type:String,
         required:true
     },
+    school_id:{
+        type:String,
+        required:true
+    },
     parent_id:{
         type:String,
         required:true
@@ -16,7 +20,7 @@ const StudentSchema = new Schema({
     },
     DOB: {
         type:String,
-        required:true
+        required:false
     },
     gender:{
         type:String,

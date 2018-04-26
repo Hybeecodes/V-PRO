@@ -6,6 +6,9 @@ const School = require('../models/School');
 const multer = require('multer');
 const { check, validationResult } = require('express-validator/check');
 const bcrypt = require('bcrypt-nodejs');
+const moment = require('moment');
+const Student = require('../models/Student');
+const Parent = require('../models/parent');
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -67,24 +70,28 @@ router.get('/is_logged_in',(req,res,next) => {
 // login endppoint
 
 router.post('/login',(req,res,next)=>{
-  
+  console.log(req.body);
   if(req.body.email == undefined||req.body.password == undefined){
     res.json({status:0,message:"Sorry, One or more credentials missing"});
+    return;
   }
   // console.log(req.body)
     let email = req.body.email;
-    let password =bcrypt.hashSync(req.body.password);
-    // // console.log(password);
-    School.findOne({email:email,password:password},(err,school)=>{
+    School.findOne({email:email},(err,school)=>{
       if(err){
         res.json({status:0,message:"Sorry,Unable to login"});
       }
       if(!school){
         res.json({status:0,message:"Sorry,Invalid Email or Password"});
       }else{
-        //set school session
-        req.session.user_session = school;
-        res.json({status:1,message:school});
+        if(bcrypt.compareSync(req.body.password,school.password)){
+          //set school session
+          req.session.user_session = school;
+          res.json({status:1,message:school});
+        }else{
+        res.json({status:0,message:"Sorry,Invalid Email or Password"});
+          
+        }
       }
     });
 });
@@ -95,35 +102,125 @@ router.post('/register',(req,res,next)=>{
   // if(req.files)/
   console.log(req.body)
   if(req.body){
-    if(req.body.name == undefined || req.body.address == undefined||req.body.email == undefined||req.body.password == undefined||req.body.phone == undefined || req.file == undefined){
+    if(req.body.name == undefined || req.body.address == undefined||req.body.email == undefined||req.body.password == undefined||req.body.phone == undefined){
       res.json({status:0,message:"Sorry, One or more credentials missing"});
     }else{
-      upload.single('photo',(err,photo)=>{
-        if(err){
-          res.json({status:0,message:"Sorry,Unable to upload photo"});
-        }else{
-          const newSchool = {
-            name: req.body.name,
-            address: req.body.address,
-            email:req.body.email,
-            password: bcrypt.hashSync(req.body.password),
-            phone: req.body.phone
-          }
-          School.save(newSchool,(err,school)=>{
-            if(err){
-              res.json({status:0,message:"Sorry,Unable to register new Scholl"});
-            }else{
-              res.json({status:1,message:school});
+      if(req.file){
+        upload.single('photo',(err,photo)=>{
+          if(err){
+            res.json({status:0,message:"Sorry,Unable to upload photo"});
+          }else{
+            const newSchool = {
+              name: req.body.name,
+              address: req.body.address,
+              email:req.body.email,
+              password: bcrypt.hashSync(req.body.password),
+              phone: req.body.phone,
+              created_at: Date.now()
             }
-          }) 
+            School.save(newSchool,(err,school)=>{
+              if(err){
+                res.json({status:0,message:"Sorry,Unable to register new Scholl"});
+              }else{
+                res.json({status:1,message:school});
+              }
+            }) 
+          }
+        })
+      }else{
+        // console.log(Date.now());
+        const newSchool = {
+          name: req.body.name,
+          address: req.body.address,
+          email:req.body.email,
+          password: bcrypt.hashSync(req.body.password),
+          phone: req.body.phone,
+          created_at: Date.now()
         }
-      })
+        
+        School.create(newSchool,(err,school)=>{
+          if(err){
+            res.json({status:0,message:err});
+          }else{
+            res.json({status:1,message:school});
+          }
+        }) 
+      }
+      
     }
   }else{
     res.json({status:0,message:"Sorry, request body is empty"});
   }
 });
 
+// add new student
+router.post('/register_student',(req,res,next)=>{
+  if(req.body.name == undefined || req.body.address == undefined||req.body.email == undefined||req.body.gender == undefined||req.body.phone == undefined || req.body.parent == undefined ||req.body.school == undefined || req.body.class == undefined ){
+    res.json({status:0,message:"Sorry, One or more credentials missing"});
+  }else{
+    // check if student exists
+    Student.findOne({email:req.body.email,parent_id:req.body.parent_id,school_id:req.body.school_id},(err,student)=>{
+      if(err){
+        res.json({status:0,message:"Sorry,An Error Occured"});
+      }else if(student){
+        res.json({status:0,message:"Sorry,Student Exists Already"});
+      }else if(!student){
+          // create  new student document
+          const newStudent = new Student({
+            name: req.body.name,
+            school_id: req.body.school,
+            parent_id: req.body.parent,
+            class_id: req.body.class,
+            gender: req.body.gender,
+            address: req.body.address,
+            phone: req.body.phone,
+            email: req.body.email
+          });
+          Student.create(newStudent,(err,student)=>{
+            if(err){
+              res.json({status:0,message:"Sorry,Unable to add Student"});
+            }else{
+              res.json({status:1,message:student});
+            }
+          })
+      }
+    })
+  }
+});
+
+// add new parent
+router.post('/register_parent',(req,res,next)=>{
+  if(req.body.name == undefined || req.body.address == undefined||req.body.email == undefined||req.body.gender == undefined||req.body.phone == undefined ||req.body.school == undefined || req.body.profession == undefined ){
+    res.json({status:0,message:"Sorry, One or more credentials missing"});
+  }else{
+    // check if student exists
+    Parent.findOne({email:req.body.email,school_id:req.body.school_id},(err,parent)=>{
+      if(err){
+        res.json({status:0,message:"Sorry,An Error Occured"});
+      }else if(parent){
+        res.json({status:0,message:"Sorry,Parent Exists Already"});
+      }else if(!parent){
+          // create  new student document
+          const newParent = new Parent({
+            name: req.body.name,
+            school_id: req.body.school,
+            profession: req.body.profession,
+            gender: req.body.gender,
+            address: req.body.address,
+            phone: req.body.phone,
+            email: req.body.email
+          });
+          Parent.create(newParent,(err,parent)=>{
+            if(err){
+              res.json({status:0,message:err});
+            }else{
+              res.json({status:1,message:parent});
+            }
+          })
+      }
+    })
+  }
+});
 
 
 

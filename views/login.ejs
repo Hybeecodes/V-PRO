@@ -40,14 +40,14 @@
                         <div class="login-content card">
                             <div class="login-form">
                                 <h4>Login</h4>
-                                <form action="/authors/login" method="post">
+                                <form action="" class="login" method="post">
                                     <div class="form-group">
                                         <label>Email address</label>
                                         <input type="email" class="form-control" name="email" placeholder="Email">
                                     </div>
                                     <div class="form-group">
                                         <label>Password</label>
-                                        <input type="password" class="form-control" name="passport" placeholder="Password">
+                                        <input type="password" class="form-control" name="password" placeholder="Password">
                                     </div>
                                     <div class="checkbox">
                                         <label>
@@ -85,7 +85,36 @@
     <script src="/javascripts/lib/sticky-kit-master/dist/sticky-kit.min.js"></script>
     <!--Custom JavaScript -->
     <script src="/javascripts/custom.min.js"></script>
+    <script>
+        $('.login').submit(function(e){
+            e.preventDefault();
+            var formData = new FormData(this);
+            formData.append('ff',1);
+            $.ajax({
+                type:'POST',
+                url:'http://localhost:3000/login',
+                data:formData,
+                cache:false,
+                processData:false,
+                contentType:false,
+                beforeSend:function(){
 
+                },
+                success:function(res){
+                    console.log(res);
+                    if(res['status'] === 0){
+                       
+                    }else{
+                       
+                    }
+                   
+                },
+                error:function(xhr){
+                    alert(xhr.statusText);
+                }
+            })
+        })
+    </script>
 </body>
 
 </html>

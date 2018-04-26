@@ -22,6 +22,14 @@ const ParentSchema = new Schema({
     profession:{
         type:String,
         required:true
+    },
+    school_id:{
+        type: String,
+        required:true
+    },
+    gender:{
+        type: String,
+        required:true
     }
 
 })

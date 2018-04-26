@@ -29,6 +29,10 @@ const TeacherSchema = new Schema({
     photo:{
         type:Object,
         required:false
+    },
+    company_id:{
+        type:String,
+        required: true
     }
 });
 

@@ -21,7 +21,7 @@ const SchoolSchema = new Schema({
     },
     logo_url:{
         type:String,
-        required:true
+        required:false
     },
     phone: {
         type:String,
@@ -34,17 +34,17 @@ const SchoolSchema = new Schema({
     deleted:{
         type:Boolean,
         required:true,
-        default:true
+        default:false
     },
     created_at:{
         type:Date,
         required:true,
-        default: new Date('y-m-d')
+        default: Date.now()
     },
     updated_at:{
         type:Date,
         required:true,
-        default: new Date('y-m-d')
+        default: Date.now()
     }
 });
 
