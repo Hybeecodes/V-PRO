@@ -43,7 +43,7 @@
                                 <div class="note">
 
                                 </div>
-                                <form method="post" action="/register" enctype="multipart/form-data">
+                                <form method="post" id="signup" action="/register" enctype="multipart/form-data">
                                     <div class="form-group">
                                         <label>Name</label>
                                         <input type="text" class="form-control" name="name" placeholder="Name">
@@ -104,20 +104,21 @@
     <script>
         $('#signup').submit(function(e){
             e.preventDefault();
-            var formData = new FormData(this);
+            var file = $("#photo")[0].files[0];
+            // var email = $('#email').f
+            var password = $('#password').val();
+            const formData = {
+                // email: email,
+                // password: password,
+                file: file
+            };
             $.ajax({
                 type:'POST',
                 url:'http://localhost:3000/register',
                 data:formData,
-                cache:false,
-                processData:false,
-                contentType:false,
-                beforeSend:function(){
-
-                },
                 success:function(res){
                     console.log(res);
-                    if(res['status'] === 0){
+                    if(res['status'] === 1){
                        
                     }else{
                        

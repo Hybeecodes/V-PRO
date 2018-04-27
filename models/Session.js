@@ -6,5 +6,12 @@ const SessionSchema = new Schema({
         type:String,
         required: true
     },
-    
+    name:{
+        type: String,
+        required: true
+    }
 })
+
+ const Session = mongoose.model('Session',SessionSchema);
+
+ module.exports = Session;

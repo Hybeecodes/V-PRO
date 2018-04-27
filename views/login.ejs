@@ -22,7 +22,13 @@
     <script src="https:**oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https:**oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 <![endif]-->
+<style>
+    .alert{
+        display: none;
+    }
+</style>
 </head>
+
 
 <body class="fix-header fix-sidebar">
     <!-- Preloader - style you can find in spinners.css -->
@@ -40,14 +46,20 @@
                         <div class="login-content card">
                             <div class="login-form">
                                 <h4>Login</h4>
+                                <div id="success" class="alert alert-success">
+
+                                </div>
+                                <div id="error" class="alert alert-danger">
+
+                                    </div>
                                 <form action="" class="login" method="post">
                                     <div class="form-group">
                                         <label>Email address</label>
-                                        <input type="email" class="form-control" name="email" placeholder="Email">
+                                        <input type="email" class="form-control" id="email" name="email" placeholder="Email">
                                     </div>
                                     <div class="form-group">
                                         <label>Password</label>
-                                        <input type="password" class="form-control" name="password" placeholder="Password">
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
                                     </div>
                                     <div class="checkbox">
                                         <label>
@@ -58,7 +70,7 @@
         									</label>
 
                                     </div>
-                                    <button type="submit" class="btn btn-primary btn-flat m-b-30 m-t-30">Sign in</button>
+                                    <button type="submit" id="submit" class="btn btn-primary btn-flat m-b-30 m-t-30">Sign in</button>
                                     <div class="register-link m-t-15 text-center">
                                         <p>Don't have account ? <a href="/register"> Sign Up Here</a></p>
                                     </div>
@@ -86,26 +98,31 @@
     <!--Custom JavaScript -->
     <script src="/javascripts/custom.min.js"></script>
     <script>
+        
         $('.login').submit(function(e){
             e.preventDefault();
-            var formData = new FormData(this);
-            formData.append('ff',1);
+            var email = $('#email').val();
+            var password = $('#password').val();
+            const formData = {
+                email: email,
+                password: password
+            };
             $.ajax({
                 type:'POST',
                 url:'http://localhost:3000/login',
                 data:formData,
-                cache:false,
-                processData:false,
-                contentType:false,
-                beforeSend:function(){
-
-                },
+               beforeSend:function(){
+                   $('#submit').text('Please wait ...').attr('disabled',true);
+               },
                 success:function(res){
-                    console.log(res);
-                    if(res['status'] === 0){
-                       
+                    // console.log(res);
+                    if(res['status'] === 1){
+                        $('#error').hide();
+                       $('#success').text('Login Successful !').show();
                     }else{
-                       
+                        $('#success').hide();
+                       $('#error').text(res['message']).show();
+                       $('#submit').text('Login').attr('disabled',false);
                     }
                    
                 },
