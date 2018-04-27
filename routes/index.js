@@ -9,6 +9,7 @@ const bcrypt = require('bcrypt-nodejs');
 const moment = require('moment');
 const Student = require('../models/Student');
 const Parent = require('../models/parent');
+const Payment = require('../models/Payment');
 const Class = require('../models/Class');
 const Teacher = require('../models/Teacher');
 const Session = require('../models/Session');
@@ -68,8 +69,25 @@ router.get('/is_logged_in',(req,res,next) => {
   }else{
     res.json({status:1,message:false});
   }
+});
+
+// get all school sessions
+router.get('/get_sesions:/school_id',(req,res,next)=>{
+  const school_id = req.query.school_id;
+  Session.find({school_id:school_id},(err,session)=>{
+    if(err){
+      res.json({status:0,message:"Sorry, Unable to get Sessions"});
+    }else{
+      res.json({status:1,message:session});
+    }
+  })
 })
 
+
+
+
+
+///////////////////////POST ENDPOINTS //////////////////////////////////////
 // login endppoint
 
 router.post('/login',(req,res,next)=>{  
@@ -103,7 +121,7 @@ router.post('/register',(req,res,next)=>{
   // check if all required fields are sent
   // if(req.files)/
   console.log(req.body);
-  return ;
+  // return ;
   if(req.body){
     if(req.body.name == undefined || req.body.address == undefined||req.body.email == undefined||req.body.password == undefined||req.body.phone == undefined){
       res.json({status:0,message:"Sorry, One or more credentials missing"});
@@ -147,7 +165,12 @@ router.post('/register',(req,res,next)=>{
           }else{
             var year = new Date().getFullYear();
             var session = `${year}/${year+1}`;
+            console.log(session)
             Session.create({school_id:school._id,name:session},(err,session)=>{
+              if(err){
+                console.log(err);
+                return;
+              }
               res.json({status:1,message:school});
             })
           }
@@ -238,10 +261,17 @@ router.post('/add_teacher',(req,res,next)=>{
 
 //add new tuition payment
 router.post('/pay_tuition',(req,res,next)=>{
-  if(req.body.school == undefined || req.body.student ==undefined || req.body.session == undefined || req.body.amount == undefined || req.body.staff_role == undefined || req.body.staff_id == undefined){
+  if(req.body.school_id == undefined || req.body.student_id ==undefined || req.body.session_id == undefined || req.body.amount == undefined || req.body.staff_role == undefined){
      res.json({status:0,message:"Sorry, One or more credentials missing"});
   }else{
-
+    const newPayment = req.body;
+    Payment.create(newPayment,(err,payment)=>{
+      if(err){
+        res.json({status:0,message:"Sorry, Unable to Add New Tuition"});
+      }else{
+        res.json({status:1,message:payment});
+      }
+    })
   }
 })
 // add new student
