@@ -13,6 +13,10 @@ const ClassSchema = new Schema({
     school_id:{
         type: String,
         required:true
+    },
+    tuition: {
+        type:JSON,
+        required:false
     }
 });
 

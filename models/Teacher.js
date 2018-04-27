@@ -30,7 +30,7 @@ const TeacherSchema = new Schema({
         type:Object,
         required:false
     },
-    company_id:{
+    school_id:{
         type:String,
         required: true
     }

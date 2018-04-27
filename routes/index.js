@@ -10,6 +10,7 @@ const moment = require('moment');
 const Student = require('../models/Student');
 const Parent = require('../models/parent');
 const Class = require('../models/Class');
+const Teacher = require('../models/Teacher');
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -156,25 +157,96 @@ router.post('/register',(req,res,next)=>{
 
 // add new class
 router.post('/add_class',(req,res,next)=>{
-  if(req.body.name == undefined || req.body.nickname == undefined || req.body.school ){
+  if(req.body.name ==undefined || req.body.school == undefined){
     res.json({status:0,message:"Sorry, One or more credentials missing"});
   }else{
-    // check if class exists already
-    Class.findOne({school_id:req.body.school},(err,class)=>{
+    if(req.body.nickname){
+      var nickname = req.body.nickname;
+    }else{
+      var nickname = "";
+    }
+    const newClass = new Class({
+      name:req.body.name,
+      nickname: nickname,
+      school_id: req.body.school
+    });
+    Class.create(newClass,(err,cls)=>{
       if(err){
-        res.json({status:0,message:"Sorry,An Error Occured"});
+        res.json({status:0,message:"Sorry,Unable to add Student"});
+      }else{
+        res.json({status:1,message:cls});
+      }
+    })
+  }
+});
+
+// update tuition for class
+router.post('/update_class_tuition',(req,res,next)=>{
+  if(req.body.class == undefined || req.body.school == undefined || req.body.tuitions == undefined){
+    res.json({status:0,message:"Sorry, One or more credentials missing"});
+  }else{
+    Class.findOneAndUpdate({class_id:req.body.class}, {$set:{tuition:JSON.stringify(req.body.tuitions)}}, {new:true},(err,cls)=>{
+      if(err){
+        res.json({status:0,message:"Sorry, Unable to update class tuition"});
+      }else{
+        res.json({status:1,message:cls});
+      }
+    });
+  }
+})
+
+// 
+
+
+// add new teacher
+router.post('/add_teacher',(req,res,next)=>{
+  if(req.body.name == undefined || req.body.gender == undefined || req.body.address ==undefined || req.body.email == undefined || req.body.phone || req.body.school ==undefined){
+    res.json({status:0,message:"Sorry, One or more credentials missing"});
+  }else{
+    // check if teacher exists already
+    Teacher.findOne({email:req.body.email,school_id:req.body.school},(err,teacher)=>{
+      if(err){
+         res.json({status:0,message:"Sorry, An Error Occured"});
+      }else{
+        if(student){
+          res.json({status:0,message:"Sorry, Teacher Exists Already"});
+        }else{
+          const newTeacher = new Teacher({
+            name:req.body.name,
+            gender: req.body.gender,
+            address: req.body.address,
+            phone: req.body.phone,
+            email: req.body.email,
+            school_id: req.body.school
+          });
+          Teacher.create(newTeacher,(err,teacher)=>{
+            if(err){
+              res.json({status:0,message:"Sorry, Unable to Add New Teacher"});
+            }else{
+              res.json({status:1,message:teacher});
+            }
+          });
+        }
       }
     })
   }
 })
 
+//add new tuition payment
+router.post('/pay_tuition',(req,res,next)=>{
+  if(req.body.school == undefined || req.body.student ==undefined || req.body.session == undefined || req.body.amount == undefined || req.body.staff_role == undefined || req.body.staff_id == undefined){
+     res.json({status:0,message:"Sorry, One or more credentials missing"});
+  }else{
+    
+  }
+})
 // add new student
 router.post('/register_student',(req,res,next)=>{
   if(req.body.name == undefined || req.body.address == undefined||req.body.email == undefined||req.body.gender == undefined||req.body.phone == undefined || req.body.parent == undefined ||req.body.school == undefined || req.body.class == undefined ){
     res.json({status:0,message:"Sorry, One or more credentials missing"});
   }else{
     // check if student exists
-    Student.findOne({email:req.body.email,parent_id:req.body.parent_id,school_id:req.body.school_id},(err,student)=>{
+    Student.findOne({email:req.body.email,parent_id:req.body.parent,school_id:req.body.school},(err,student)=>{
       if(err){
         res.json({status:0,message:"Sorry,An Error Occured"});
       }else if(student){
