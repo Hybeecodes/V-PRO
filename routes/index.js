@@ -13,6 +13,7 @@ const Payment = require('../models/Payment');
 const Class = require('../models/Class');
 const Teacher = require('../models/Teacher');
 const Session = require('../models/Session');
+const axios = require('axios');
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -72,8 +73,10 @@ router.get('/is_logged_in',(req,res,next) => {
 });
 
 // get all school sessions
-router.get('/get_sesions:/school_id',(req,res,next)=>{
-  const school_id = req.query.school_id;
+router.get('/get_sessions/:school_id',(req,res,next)=>{
+  // console.log(req.query);
+  // console.log(req.params);
+  const school_id = req.params.school_id;
   Session.find({school_id:school_id},(err,session)=>{
     if(err){
       res.json({status:0,message:"Sorry, Unable to get Sessions"});
@@ -81,7 +84,47 @@ router.get('/get_sesions:/school_id',(req,res,next)=>{
       res.json({status:1,message:session});
     }
   })
-})
+});
+
+
+
+// get school classes
+router.get('/get_classes/:school_id', (req, res) => {
+  // const
+  const school_id = req.params.school_id;
+  Class.find({school_id:school_id},(err,cls)=>{
+    if(err){
+      res.json({status:0,message:"Sorry, Unable to get Classes"});
+    }else{
+      res.json({status:1,message:cls});
+    }
+  })
+});
+
+// get all teachers
+ router.get('/get_teachers/:school_id', (req, res) => {
+  const school_id = req.params.school_id;
+  Teacher.find({school_id:school_id},(err,teacher)=>{
+    if(err){
+      res.json({status:0,message:"Sorry, Unable to get Teachers"});
+    }else{
+      res.json({status:1,message:teacher});
+    }
+  })
+ });
+
+ // get all pareents
+ router.get('/get_parents/:school_id', (req, res) => {
+  const school_id = req.params.school_id;
+  Teacher.find({school_id:school_id},(err,teacher)=>{
+    if(err){
+      res.json({status:0,message:"Sorry, Unable to get Teachers"});
+    }else{
+      res.json({status:1,message:teacher});
+    }
+  })
+ });
+
 
 
 
