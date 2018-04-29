@@ -14,6 +14,8 @@ const Class = require('../models/Class');
 const Teacher = require('../models/Teacher');
 const Session = require('../models/Session');
 const axios = require('axios');
+const schoolCtrl = require('../controllers/School');
+
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -29,7 +31,7 @@ var upload = multer({ storage: storage })
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Dashboard' });
+  res.render('dashboard/index', { title: 'Dashboard' });
 });
 
 router.get('/current_user',(req,res,next)=>{
@@ -73,18 +75,12 @@ router.get('/is_logged_in',(req,res,next) => {
 });
 
 // get all school sessions
-router.get('/get_sessions/:school_id',(req,res,next)=>{
-  // console.log(req.query);
-  // console.log(req.params);
-  const school_id = req.params.school_id;
-  Session.find({school_id:school_id},(err,session)=>{
-    if(err){
-      res.json({status:0,message:"Sorry, Unable to get Sessions"});
-    }else{
-      res.json({status:1,message:session});
-    }
-  })
-});
+// router.get('/get_sessions/:school_id',(req,res,next)=>{
+//   // console.log(req.query);
+//   // console.log(req.params);
+//   const school_id = req.params.school_id;
+//   console.log(schoolCtrl.get_school_sessions(school_id)
+// });
 
 
 
