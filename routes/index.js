@@ -15,6 +15,17 @@ const Teacher = require('../models/Teacher');
 const Session = require('../models/Session');
 const axios = require('axios');
 const schoolCtrl = require('../controllers/School');
+// const EnsureLoggedIn = require('../middlewares/ensureLoggedIn').EnsureLoggedIn()
+
+
+const EnsureLoggedIn = function(req,res,next){
+  // check if user is logged in
+  if(!req.session.user_session){
+      res.redirect(301,'/login');
+  }else{
+    next();
+  }
+};
 
 
 var storage = multer.diskStorage({
@@ -30,7 +41,7 @@ var upload = multer({ storage: storage })
 
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/',EnsureLoggedIn,function(req, res, next) {
   res.render('dashboard/index', { title: 'Dashboard' });
 });
 
@@ -40,14 +51,29 @@ router.get('/current_user',(req,res,next)=>{
   }else{
     res.json({status:0,message:0});
   }
-})
-
-
-router.get('/login',(req,res,next) =>{
-  res.render('login',{title:'Login'});
 });
 
+router.get('/all_parents',function(req,res,next){
+  // get logged in school id from session
+  var school_id = req.session.user_session._id;
+  // fetch all parents
+  Parent.find({school_id: school_id},(err,parent)=>{
+    if(err){
+      throw err;
+    }
+    if(parent){
+      console.log(parent);
+      res.render('dashboard/parents',{title: 'Parents',parents: parent});
+    }
+  })
+})
 
+router.get('/login',(req,res,next) =>{
+  console.log(req.session);
+  const error = req.session.error;
+  req.session.error = null;
+  res.render('login',{title:'Login',success:req.session.success,error:error});
+});
 
 router.get('/register',(req,res,next) =>{
   res.render('register',{title:'Register'});
@@ -131,25 +157,31 @@ router.get('/get_classes/:school_id', (req, res) => {
 
 router.post('/login',(req,res,next)=>{  
   if(req.body.email == undefined||req.body.password == undefined){
-    res.json({status:0,message:"Sorry, One or more credentials missing"});
-    return;
+    req.session.error = "Please Fill All Fields";
+    req.session.success = false;
+    console.log('sorry')
+     res.redirect('/login');
   }
-  // console.log(req.body)
     let email = req.body.email;
     School.findOne({email:email},(err,school)=>{
       if(err){
-        res.json({status:0,message:"Sorry,Unable to login"});
+        req.session.error = "Sorry, Unable to log in";
+        req.session.success = false;
+        res.redirect('/login');
       }
       if(!school){
-        res.json({status:0,message:"Sorry,Invalid Email or Password"});
+        req.session.error = "Invalid Email or Password";
+        req.session.success = false;
+        res.redirect('/login');
       }else{
         if(bcrypt.compareSync(req.body.password,school.password)){
           //set school session
           req.session.user_session = school;
-          res.json({status:1,message:school});
+          res.redirect('/');
         }else{
-        res.json({status:0,message:"Sorry,Invalid Email or Password"});
-          
+          req.session.error = "Invalid Email or Password";
+          req.session.success = false;
+          res.redirect('/login');
         }
       }
     });

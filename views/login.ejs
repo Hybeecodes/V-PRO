@@ -22,11 +22,7 @@
     <script src="https:**oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https:**oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 <![endif]-->
-<style>
-    .alert{
-        display: none;
-    }
-</style>
+
 </head>
 
 
@@ -46,13 +42,13 @@
                         <div class="login-content card">
                             <div class="login-form">
                                 <h4>Login</h4>
-                                <div id="success" class="alert alert-success">
-
-                                </div>
-                                <div id="error" class="alert alert-danger">
-
+                                <% if(error){ %>
+                                    <div id="error" class="alert alert-danger">
+                                        <%= error %>
                                     </div>
-                                <form action="" class="login" method="post">
+                                <% } %>
+                                
+                                <form action="/login" class="login" method="post">
                                     <div class="form-group">
                                         <label>Email address</label>
                                         <input type="email" class="form-control" id="email" name="email" placeholder="Email">
@@ -97,7 +93,7 @@
     <script src="/javascripts/lib/sticky-kit-master/dist/sticky-kit.min.js"></script>
     <!--Custom JavaScript -->
     <script src="/javascripts/custom.min.js"></script>
-    <script>
+    <!-- <script>
         
         $('.login').submit(function(e){
             e.preventDefault();
@@ -118,7 +114,10 @@
                     // console.log(res);
                     if(res['status'] === 1){
                         $('#error').hide();
-                       $('#success').text('Login Successful !').show();
+                       $('#success').text('Login Successful, we are redirecting you.').show();
+                       setTimeout(() => {
+                        //   window.location.replace("http://localhost:3000");
+                       }, 2000);
                     }else{
                         $('#success').hide();
                        $('#error').text(res['message']).show();
@@ -131,7 +130,7 @@
                 }
             })
         })
-    </script>
+    </script> -->
 </body>
 
 </html>
