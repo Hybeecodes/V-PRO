@@ -110,14 +110,16 @@ router.get('/students',EnsureLoggedIn,(req,res,next)=>{
   })
 })
 
-router.get('/register_student',(req,res,next) => {
+router.get('/register_student',EnsureLoggedIn,(req,res,next) => {
   var school_id = req.session.user_session._id;
+  const error = req.session.error;
+  req.session.error = null;
  // fetch all parents
  Parent.find({school_id:school_id},(err,parents)=>{
    if(err) throw err;
    // fetch classes
    Class.find({school_id:school_id},(err,classes)=>{
-     res.render('dashboard/register_student',{tite:'New Student',classes:classes,parents:parents,school_id:school_id});
+     res.render('dashboard/register_student',{title:'New Student',classes:classes,parents:parents,school_id:school_id,error:error});
    })
  })
   
@@ -388,14 +390,17 @@ router.post('/pay_tuition',(req,res,next)=>{
 // add new student
 router.post('/register_student',(req,res,next)=>{
   if(req.body.name == undefined || req.body.address == undefined||req.body.email == undefined||req.body.gender == undefined||req.body.phone == undefined || req.body.parent == undefined ||req.body.school == undefined || req.body.class == undefined ){
-    res.json({status:0,message:"Sorry, One or more credentials missing"});
+    req.session.error = "Please Fill All Fields";
+    res.redirect('/register_student');
   }else{
     // check if student exists
     Student.findOne({email:req.body.email,parent_id:req.body.parent,school_id:req.body.school},(err,student)=>{
       if(err){
-        res.json({status:0,message:"Sorry,An Error Occured"});
+        req.session.error = "Sorry, An error occured";
+        res.redirect('/register_student');
       }else if(student){
-        res.json({status:0,message:"Sorry,Student Exists Already"});
+        req.session.error = "Sorry,Student Exists Already";
+    res.redirect('/register_student');
       }else if(!student){
           // create  new student document
           const newStudent = new Student({
@@ -410,9 +415,10 @@ router.post('/register_student',(req,res,next)=>{
           });
           Student.create(newStudent,(err,student)=>{
             if(err){
-              res.json({status:0,message:"Sorry,Unable to add Student"});
+              req.session.error = "Sorry,Unable to add Student";
+        res.redirect('/register_student');
             }else{
-              res.json({status:1,message:student});
+              res.redirect('/students');
             }
           })
       }
