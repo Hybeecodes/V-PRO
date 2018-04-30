@@ -79,14 +79,16 @@ router.get('/all_parents',EnsureLoggedIn,function(req,res,next){
       throw err;
     }
     if(parent){
-      console.log(parent);
+      // console.log(parent);
       res.render('dashboard/parents',{title: 'Parents',parents: parent});
     }
   })
 })
 
 router.get('/add_parent',EnsureLoggedIn,(req,res,next)=>{
-  res.render('dashboard/add_parent',{title:'Add Parent', school_id: req.session.user_session._id});
+  const error = req.session.error;
+  req.session.error = null;
+  res.render('dashboard/add_parent',{title:'Add Parent', school_id: req.session.user_session._id,error:error});
 })
 
 router.get('/login',(req,res,next) =>{
@@ -100,12 +102,29 @@ router.get('/register',(req,res,next) =>{
   res.render('register',{title:'Register'});
 })
 
+router.get('/students',EnsureLoggedIn,(req,res,next)=>{
+  var school_id = req.session.user_session._id;
+  Student.find({school_id:school_id},(err,students)=>{
+    if(err) throw err;
+    res.render('dashboard/students',{ title: 'Students',students:students});
+  })
+})
+
 router.get('/register_student',(req,res,next) => {
-  res.render('dashboard/register_student',{ title: 'Admission Form'});
+  var school_id = req.session.user_session._id;
+ // fetch all parents
+ Parent.find({school_id:school_id},(err,parents)=>{
+   if(err) throw err;
+   // fetch classes
+   Class.find({school_id:school_id},(err,classes)=>{
+     res.render('dashboard/register_student',{tite:'New Student',classes:classes,parents:parents,school_id:school_id});
+   })
+ })
+  
 })
-router.get('/register_parent',(req,res,next) => {
-  res.render('dashboard/register_parent',{ title: 'New Parent'});
-})
+// router.get('/register_parent',(req,res,next) => {
+//   res.render('dashboard/register_parent',{ title: 'New Parent'});
+// })
 router.get('/pay_tuition',(req,res,next) => {
   res.render('dashboard/pay_tuition',{ title: 'Pay Tuition'});
 })
@@ -180,7 +199,7 @@ router.post('/login',(req,res,next)=>{
   if(req.body.email == undefined||req.body.password == undefined){
     req.session.error = "Please Fill All Fields";
     req.session.success = false;
-    console.log('sorry')
+    // console.log('sorry')
      res.redirect('/login');
   }
     let email = req.body.email;
@@ -404,14 +423,17 @@ router.post('/register_student',(req,res,next)=>{
 // add new parent
 router.post('/add_parent',(req,res,next)=>{
   if(req.body.name == undefined || req.body.address == undefined||req.body.email == undefined||req.body.gender == undefined||req.body.phone == undefined ||req.body.school == undefined || req.body.profession == undefined ){
-    res.json({status:0,message:"Sorry, One or more credentials missing"});
+    req.session.error = "Please Fill All Fields";
+    res.redirect('/add_parent');
   }else{
     // check if student exists
     Parent.findOne({email:req.body.email,school_id:req.body.school_id},(err,parent)=>{
       if(err){
-        res.json({status:0,message:"Sorry,An Error Occured"});
+        req.session.error = "Sorry,An Error Occured";
+        res.redirect('/add_parent');
       }else if(parent){
-        res.json({status:0,message:"Sorry,Parent Exists Already"});
+        req.session.error = "Sorry,Parent Exists Already";
+        res.redirect('/add_parent');
       }else if(!parent){
           // create  new student document
           const newParent = new Parent({
@@ -425,9 +447,10 @@ router.post('/add_parent',(req,res,next)=>{
           });
           Parent.create(newParent,(err,parent)=>{
             if(err){
-              res.json({status:0,message:err});
+              req.session.error = "Sorry,Unable to Add New Parent";
+              res.redirect('/add_parent');
             }else{
-              res.json({status:1,message:parent});
+              res.redirect('/all_parents');
             }
           })
       }

@@ -7,14 +7,8 @@ Teacher = require('../models/Teacher');
 Session = require('../models/Session');
 
 
-module.exports.get_students = function(school_id){
-    
-    Student.count({school_id: school_id},(err,students)=>{
-        if(err){
-            throw err;
-        }
-        return students;
-    });
+module.exports.get_students = function(req,res,next){
+    return Student.find({school_id: req.Session.user_session._id},(err,student));
 };
 
 
