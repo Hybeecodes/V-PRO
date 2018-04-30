@@ -18,6 +18,8 @@ const schoolCtrl = require('../controllers/School');
 // const EnsureLoggedIn = require('../middlewares/ensureLoggedIn').EnsureLoggedIn()
 
 
+
+
 const EnsureLoggedIn = function(req,res,next){
   // check if user is logged in
   if(!req.session.user_session){
@@ -27,6 +29,7 @@ const EnsureLoggedIn = function(req,res,next){
   }
 };
 
+// router.use(EnsureLoggedIn);
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -42,7 +45,21 @@ var upload = multer({ storage: storage })
 
 /* GET home page. */
 router.get('/',EnsureLoggedIn,function(req, res, next) {
-  res.render('dashboard/index', { title: 'Dashboard' });
+  var school_id =req.session.user_session._id ;
+  Student.count({school_id:school_id},(err,student)=>{
+    if(err)
+    throw err
+    Parent.count({school_id:school_id},(err,parent)=>{
+      if(err) throw err;
+      Teacher.count({school_id:school_id},(err,teacher)=>{
+        if(err) throw err;
+        res.render('dashboard/index', { title: 'Dashboard' ,students:student,parents:parent,teachers:teacher});
+      })
+      
+    })
+    
+  })
+  
 });
 
 router.get('/current_user',(req,res,next)=>{
@@ -53,7 +70,7 @@ router.get('/current_user',(req,res,next)=>{
   }
 });
 
-router.get('/all_parents',function(req,res,next){
+router.get('/all_parents',EnsureLoggedIn,function(req,res,next){
   // get logged in school id from session
   var school_id = req.session.user_session._id;
   // fetch all parents
@@ -66,6 +83,10 @@ router.get('/all_parents',function(req,res,next){
       res.render('dashboard/parents',{title: 'Parents',parents: parent});
     }
   })
+})
+
+router.get('/add_parent',EnsureLoggedIn,(req,res,next)=>{
+  res.render('dashboard/add_parent',{title:'Add Parent', school_id: req.session.user_session._id});
 })
 
 router.get('/login',(req,res,next) =>{
@@ -381,7 +402,7 @@ router.post('/register_student',(req,res,next)=>{
 });
 
 // add new parent
-router.post('/register_parent',(req,res,next)=>{
+router.post('/add_parent',(req,res,next)=>{
   if(req.body.name == undefined || req.body.address == undefined||req.body.email == undefined||req.body.gender == undefined||req.body.phone == undefined ||req.body.school == undefined || req.body.profession == undefined ){
     res.json({status:0,message:"Sorry, One or more credentials missing"});
   }else{
