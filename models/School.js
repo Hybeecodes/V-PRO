@@ -19,8 +19,8 @@ const SchoolSchema = new Schema({
         type:String,
         required:true
     },
-    logo_url:{
-        type:String,
+    photo:{
+        type:Object,
         required:false
     },
     phone: {
