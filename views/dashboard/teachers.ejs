@@ -62,16 +62,19 @@
                                                 <thead>
                                                     <tr>
                                                         <th>Name</th>
-                                                        <th>Nickname</th>
-                                                        
+                                                        <th>Email</th>
+                                                        <th>Address</th>
+                                                        <th>Phone</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <% if(classes){
-                                                        for(let i=0;i<classes.length;i++){ %>
+                                                    <% if(teachers){
+                                                        for(let i=0;i<teachers.length;i++){ %>
                                                             <tr>
-                                                                <td><%= classes[i].name %></td>
-                                                                <td><%= classes[i].nickname %></td>
+                                                                <td><%= teachers[i].name %></td>
+                                                                <td><%= teachers[i].email %></td>
+                                                                <td><%= teachers[i].address %></td>
+                                                                <td><%= teachers[i].phone %></td>
                                                             </tr>
                                                      <%   }
                                                     } %>
@@ -79,7 +82,7 @@
                                                 
                                             </table>
                                             <div style="padding-top: 10px;">
-                                                    <a href="/add_class" class="btn btn-primary pull-left btn-sm">Add New Class</a>
+                                                    <a href="/add_teacher" class="btn btn-primary pull-left btn-sm">Add New Teachers</a>
                                             </div>
                                             
                                         </div>

@@ -162,17 +162,39 @@ router.get('/is_logged_in', (req, res, next) => {
 
 
 // get all teachers
-router.get('/get_teachers/:school_id',EnsureLoggedIn, (req, res) => {
+router.get('/add_teacher', EnsureLoggedIn, (req, res, next) => {
     var school = req.session.user_session;
-    const school_id = req.params.school_id;
-    Teacher.find({ school_id: school_id }, (err, teacher) => {
+    const error = req.session.error;
+    req.session.error = null;
+    res.render('dashboard/add_teacher', { title: 'Add Teacher', school_id: req.session.user_session._id, error: error, school:school });
+})
+
+router.get('/all_teachers', EnsureLoggedIn, function(req, res, next) {
+    // get logged in school id from session
+    var school = req.session.user_session;
+    var school_id = req.session.user_session._id;
+    // fetch all parents
+    Teacher.find({ school_id: school_id }, (err, teachers) => {
         if (err) {
-            res.json({ status: 0, message: "Sorry, Unable to get Teachers" });
-        } else {
-            res.json({ status: 1, message: teacher });
+            throw err;
         }
-    })
+        if (teachers) {
+            // console.log(parent);
+            res.render('dashboard/teachers', { title: 'Teachers', teachers: teachers, school: school });
+        }
+    });
 });
+// router.get('/get_teachers/:school_id',EnsureLoggedIn, (req, res) => {
+//     var school = req.session.user_session;
+//     const school_id = req.params.school_id;
+//     Teacher.find({ school_id: school_id }, (err, teacher) => {
+//         if (err) {
+//             res.json({ status: 0, message: "Sorry, Unable to get Teachers" });
+//         } else {
+//             res.json({ status: 1, message: teacher });
+//         }
+//     })
+// });
 
 router.get('/add_class', EnsureLoggedIn, (req, res, next) => {
     var school = req.session.user_session;
@@ -216,7 +238,7 @@ router.get('/get_parents/:school_id',EnsureLoggedIn, (req, res) => {
 
 
 ///////////////////////POST ENDPOINTS //////////////////////////////////////
-// login endppoint
+// login endpoint
 
 router.post('/login', (req, res, next) => {
     if (req.body.email == undefined || req.body.password == undefined) {
@@ -303,7 +325,8 @@ router.post('/register',upload.single('photo'), (req, res, next) => {
 // add new class
 router.post('/add_class', (req, res, next) => {
     if (req.body.name == undefined || req.body.school == undefined) {
-        res.json({ status: 0, message: "Sorry, One or more credentials missing" });
+        req.session.error = "Please Fill All Fields";
+        res.redirect('/add_class');
     } else {
         if (req.body.nickname) {
             var nickname = req.body.nickname;
@@ -317,13 +340,16 @@ router.post('/add_class', (req, res, next) => {
         });
         Class.create(newClass, (err, cls) => {
             if (err) {
-                res.json({ status: 0, message: "Sorry,Unable to add Student" });
+                req.session.error = "Sorry, Unable to Add Class";
+                res.redirect('/add_class');
             } else {
-                res.json({ status: 1, message: cls });
+                res.redirect('/all_classes');
             }
         })
     }
 });
+
+
 
 // update tuition for class
 router.post('/update_class_tuition', (req, res, next) => {
@@ -346,15 +372,18 @@ router.post('/update_class_tuition', (req, res, next) => {
 // add new teacher
 router.post('/add_teacher', (req, res, next) => {
     if (req.body.name == undefined || req.body.gender == undefined || req.body.address == undefined || req.body.email == undefined || req.body.phone || req.body.school == undefined) {
-        res.json({ status: 0, message: "Sorry, One or more credentials missing" });
+        req.session.error = "Please Fill All Fields";
+        res.redirect('/add_teacher');
     } else {
         // check if teacher exists already
         Teacher.findOne({ email: req.body.email, school_id: req.body.school }, (err, teacher) => {
             if (err) {
-                res.json({ status: 0, message: "Sorry, An Error Occured" });
+                req.session.error = "Sorry, An error Occured";
+                res.redirect('/add_teacher');
             } else {
-                if (student) {
-                    res.json({ status: 0, message: "Sorry, Teacher Exists Already" });
+                if (teacher) {
+                    req.session.error = "Sorry, Teacher Already Exists";
+                    res.redirect('/add_teacher');
                 } else {
                     const newTeacher = new Teacher({
                         name: req.body.name,
@@ -366,9 +395,10 @@ router.post('/add_teacher', (req, res, next) => {
                     });
                     Teacher.create(newTeacher, (err, teacher) => {
                         if (err) {
-                            res.json({ status: 0, message: "Sorry, Unable to Add New Teacher" });
+                            req.session.error = "Sorry, Unable to add Teachers";
+                            res.redirect('/add_teacher');
                         } else {
-                            res.json({ status: 1, message: teacher });
+                            res.redirect('all_teachers');
                         }
                     });
                 }

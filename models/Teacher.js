@@ -8,7 +8,7 @@ const TeacherSchema = new Schema({
     },
     DOB:{
         type:String,
-        required:true
+        required:false
     },
     gender:{
         type:String,
