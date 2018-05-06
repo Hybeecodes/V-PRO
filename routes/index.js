@@ -32,20 +32,19 @@ const EnsureLoggedIn = function(req, res, next) {
 // router.use(EnsureLoggedIn);
 
 var storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, '/uploads/')
+    destination: function (req, file, cb) {
+      cb(null, './public/uploads')
     },
-    filename: function(req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now())
+    filename: function (req, file, cb) {
+      cb(null, file.fieldname + '-' + Date.now())
     }
-})
-
-var upload = multer({ storage: storage }).single('photo');
+  });
+  var upload = multer({ storage: storage })
 
 
 /* GET home page. */
 router.get('/', EnsureLoggedIn, function(req, res, next) {
-    console.log(req.session.user_session);
+    var school = req.session.user_session;
     var school_id = req.session.user_session._id;
     Student.count({ school_id: school_id }, (err, student) => {
         if (err)
@@ -54,7 +53,7 @@ router.get('/', EnsureLoggedIn, function(req, res, next) {
             if (err) throw err;
             Teacher.count({ school_id: school_id }, (err, teacher) => {
                 if (err) throw err;
-                res.render('dashboard/index', { title: 'Dashboard', students: student, parents: parent, teachers: teacher });
+                res.render('dashboard/index', { title: 'Dashboard', students: student,school:school, parents: parent, teachers: teacher });
             })
 
         })
@@ -73,6 +72,7 @@ router.get('/current_user', (req, res, next) => {
 
 router.get('/all_parents', EnsureLoggedIn, function(req, res, next) {
     // get logged in school id from session
+    var school = req.session.user_session;
     var school_id = req.session.user_session._id;
     // fetch all parents
     Parent.find({ school_id: school_id }, (err, parent) => {
@@ -81,15 +81,16 @@ router.get('/all_parents', EnsureLoggedIn, function(req, res, next) {
         }
         if (parent) {
             // console.log(parent);
-            res.render('dashboard/parents', { title: 'Parents', parents: parent });
+            res.render('dashboard/parents', { title: 'Parents', parents: parent, school: school });
         }
     })
 })
 
 router.get('/add_parent', EnsureLoggedIn, (req, res, next) => {
+    var school = req.session.user_session;
     const error = req.session.error;
     req.session.error = null;
-    res.render('dashboard/add_parent', { title: 'Add Parent', school_id: req.session.user_session._id, error: error });
+    res.render('dashboard/add_parent', { title: 'Add Parent', school_id: req.session.user_session._id, error: error, school:school });
 })
 
 router.get('/login', (req, res, next) => {
@@ -107,14 +108,16 @@ router.get('/register', (req, res, next) => {
 })
 
 router.get('/students', EnsureLoggedIn, (req, res, next) => {
+    var school = req.session.user_session;
     var school_id = req.session.user_session._id;
     Student.find({ school_id: school_id }, (err, students) => {
         if (err) throw err;
-        res.render('dashboard/students', { title: 'Students', students: students });
+        res.render('dashboard/students', { title: 'Students', students: students, school,school });
     })
 })
 
 router.get('/register_student', EnsureLoggedIn, (req, res, next) => {
+    var school = req.session.user_session;
         var school_id = req.session.user_session._id;
         const error = req.session.error;
         req.session.error = null;
@@ -123,7 +126,7 @@ router.get('/register_student', EnsureLoggedIn, (req, res, next) => {
             if (err) throw err;
             // fetch classes
             Class.find({ school_id: school_id }, (err, classes) => {
-                res.render('dashboard/register_student', { title: 'New Student', classes: classes, parents: parents, school_id: school_id, error: error });
+                res.render('dashboard/register_student', { title: 'New Student', classes: classes, parents: parents, school_id: school_id, error: error, school:school });
             })
         })
 
@@ -156,21 +159,11 @@ router.get('/is_logged_in', (req, res, next) => {
 
 
 
-// get school classes
-router.get('/get_classes/:school_id', (req, res) => {
-    // const
-    const school_id = req.params.school_id;
-    Class.find({ school_id: school_id }, (err, cls) => {
-        if (err) {
-            res.json({ status: 0, message: "Sorry, Unable to get Classes" });
-        } else {
-            res.json({ status: 1, message: cls });
-        }
-    })
-});
+
 
 // get all teachers
-router.get('/get_teachers/:school_id', (req, res) => {
+router.get('/get_teachers/:school_id',EnsureLoggedIn, (req, res) => {
+    var school = req.session.user_session;
     const school_id = req.params.school_id;
     Teacher.find({ school_id: school_id }, (err, teacher) => {
         if (err) {
@@ -181,8 +174,32 @@ router.get('/get_teachers/:school_id', (req, res) => {
     })
 });
 
+router.get('/add_class', EnsureLoggedIn, (req, res, next) => {
+    var school = req.session.user_session;
+    const error = req.session.error;
+    req.session.error = null;
+    res.render('dashboard/add_class', { title: 'Add Class', school_id: req.session.user_session._id, error: error, school:school });
+})
+
+router.get('/all_classes', EnsureLoggedIn, function(req, res, next) {
+    // get logged in school id from session
+    var school = req.session.user_session;
+    var school_id = req.session.user_session._id;
+    // fetch all parents
+    Class.find({ school_id: school_id }, (err, cls) => {
+        if (err) {
+            throw err;
+        }
+        if (cls) {
+            // console.log(parent);
+            res.render('dashboard/classes', { title: 'Classes', classes: cls, school: school });
+        }
+    })
+})
+
 // get all pareents
-router.get('/get_parents/:school_id', (req, res) => {
+router.get('/get_parents/:school_id',EnsureLoggedIn, (req, res) => {
+    var school = req.session.user_session;
     const school_id = req.params.school_id;
     Teacher.find({ school_id: school_id }, (err, teacher) => {
         if (err) {
@@ -240,24 +257,15 @@ router.get('/logout', (req, res, next) => {
     })
 })
 
-// register new school
-router.post('/register', (req, res, next) => {
+// register new school1
+router.post('/register',upload.single('photo'), (req, res, next) => {
     // check if all required fields are sent
     // if(req.body)/
-    console.log(req.file);
-    // return ;
     if (req.body) {
         if (req.body.name == undefined || req.body.address == undefined || req.body.email == undefined || req.body.password == undefined || req.body.phone == undefined) {
             req.session.error = "Please Fill All Fields";
             res.redirect('/register');
         } else {
-            if (req.file) {
-                console.log('file');
-                return;
-                upload.single('photo', (err, photo) => {
-                    if (err) {
-                        throw err;
-                    } else {
                         const newSchool = {
                             name: req.body.name,
                             address: req.body.address,
@@ -267,7 +275,7 @@ router.post('/register', (req, res, next) => {
                             created_at: Date.now(),
                             photo: req.file
                         }
-                        School.save(newSchool, (err, school) => {
+                        School.create(newSchool, (err, school) => {
                             if (err) {
                                 req.session.error = "Sorry, Unable to Register School";
                                 res.redirect('/register');
@@ -284,39 +292,7 @@ router.post('/register', (req, res, next) => {
                                 })
                             }
                         })
-                    }
-                })
-            } else {
-                console.log('not file');
-                return;
-                // console.log(Date.now());
-                const newSchool = {
-                    name: req.body.name,
-                    address: req.body.address,
-                    email: req.body.email,
-                    password: bcrypt.hashSync(req.body.password),
-                    phone: req.body.phone,
-                    created_at: Date.now()
-                }
-
-                School.create(newSchool, (err, school) => {
-                    if (err) {
-                        req.session.error = "Sorry, Unable to Register School";
-                        res.redirect('/register');
-                    } else {
-                        var year = new Date().getFullYear();
-                        var session = `${year}/${year+1}`;
-                        console.log(session)
-                        Session.create({ school_id: school._id, name: session }, (err, session) => {
-                            if (err) {
-                                throw err;
-                                return;
-                            }
-                            res.redirect('/login');
-                        })
-                    }
-                })
-            }
+            
         }
     } else {
         req.session.error = "Please Fill All Fields";
