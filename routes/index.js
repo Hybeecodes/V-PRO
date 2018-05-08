@@ -349,18 +349,48 @@ router.post('/add_class', (req, res, next) => {
     }
 });
 
+// assign tuition to class
+router.get('/assign_class_tuition',EnsureLoggedIn,(req,res,next)=>{
+    var school = req.session.user_session;
+    var error =  req.session.error;
+    // fetch classes
+    Class.find({school_id: school._id},(err,classes)=>{
+        if(err){
+            res.redirect('/');
+        }else{
+            res.render('dashboard/assign_class_tuition',{title:'Assign Class Tuitions',error:error,school:school,classes:classes});
+        }
+    });
+   
+});
+
+router.get('/class_tuitions',EnsureLoggedIn,(req,res,next)=>{
+    var school = req.session.user_session;
+
+    // fetch classes
+    Class.find({school_id:school.school_id},(err,classes)=>{
+        if(err){
+            res.redirect('/');
+        }else{
+            res.render('dashboard/class_tuitions',{title:'Class Tuitions',school:school, classes:classes});
+        }
+    })
+})
+
 
 
 // update tuition for class
 router.post('/update_class_tuition', (req, res, next) => {
     if (req.body.class == undefined || req.body.school == undefined || req.body.tuitions == undefined) {
-        res.json({ status: 0, message: "Sorry, One or more credentials missing" });
+        req.session.error = "Please Fill all Fields";
+        res.redirect('/assign_class_tuition');
     } else {
-        Class.findOneAndUpdate({ class_id: req.body.class }, { $set: { tuition: JSON.stringify(req.body.tuitions) } }, { new: true }, (err, cls) => {
+        Class.findOneAndUpdate({ class_id: req.body.class, school_id: req.body.school }, { $set: { tuition1:req.body.tuition1, tuition2: req.body.tuition2, tuition3: req.body.tuition3  } }, { new: true }, (err, cls) => {
             if (err) {
-                res.json({ status: 0, message: "Sorry, Unable to update class tuition" });
+                req.session.error = "Sorry, Unable to Assign Tuition";
+                res.redirect('/assign_class_tuition');
             } else {
-                res.json({ status: 1, message: cls });
+                res.redirect('/class_tuitions');
             }
         });
     }
@@ -371,10 +401,7 @@ router.post('/update_class_tuition', (req, res, next) => {
 
 // add new teacher
 router.post('/add_teacher', (req, res, next) => {
-    if (req.body.name == undefined || req.body.gender == undefined || req.body.address == undefined || req.body.email == undefined || req.body.phone || req.body.school == undefined) {
-        req.session.error = "Please Fill All Fields";
-        res.redirect('/add_teacher');
-    } else {
+    // console.log(req.body);
         // check if teacher exists already
         Teacher.findOne({ email: req.body.email, school_id: req.body.school }, (err, teacher) => {
             if (err) {
@@ -395,6 +422,7 @@ router.post('/add_teacher', (req, res, next) => {
                     });
                     Teacher.create(newTeacher, (err, teacher) => {
                         if (err) {
+                            console.log(err);
                             req.session.error = "Sorry, Unable to add Teachers";
                             res.redirect('/add_teacher');
                         } else {
@@ -404,8 +432,8 @@ router.post('/add_teacher', (req, res, next) => {
                 }
             }
         })
-    }
 })
+
 
 //add new tuition payment
 router.post('/pay_tuition', (req, res, next) => {

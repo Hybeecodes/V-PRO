@@ -14,8 +14,16 @@ const ClassSchema = new Schema({
         type: String,
         required:true
     },
-    tuition: {
-        type:JSON,
+    tuition1: { // first term tuition
+        type:String,
+        required:false
+    },
+    tuition2: { // second term tuition
+        type:String,
+        required:false
+    },
+    tuition3: { // third term tuition
+        type:String,
         required:false
     }
 });
