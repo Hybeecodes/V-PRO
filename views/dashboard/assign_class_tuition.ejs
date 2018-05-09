@@ -64,7 +64,7 @@
                                             <form action="/update_class_tuition" method="POST">
                                                 <div class="form-group">
                                                     <label>Select Class</label>
-                                                    <select name="class" id="" class="form-control">
+                                                    <select name="class" id="" class="form-control" required>
                                                         <% for(let i=0;i<classes.length; i++){
                                                             
                                                              %>
@@ -74,17 +74,17 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <label>First Term</label>
-                                                    <input type="text" class="form-control" name="tuition1" placeholder="First Term Tuition">
+                                                    <input type="text" class="form-control" name="tuition1" placeholder="First Term Tuition" required>
                                                 </div>
                                                 <div class="form-group">
                                                     <label>Second Term</label>
-                                                    <input type="text" class="form-control" name="tuition2" placeholder="Second Term Tuition">
+                                                    <input type="text" class="form-control" name="tuition2" placeholder="Second Term Tuition" required>
                                                 </div>
                                                 <div class="form-group">
                                                     <label>First Term</label>
-                                                    <input type="text" class="form-control" name="tuition3" placeholder="Third Term Tuition">
+                                                    <input type="text" class="form-control" name="tuition3" placeholder="Third Term Tuition" required>
                                                 </div>
-                                                    <input type="hidden" name="school" value="<%= school.school_id %>">
+                                                    <input type="hidden" name="school" value="<%=school._id %>">
                                                 <button type="submit" class="btn btn-primary">Assign Tuition</button>
                                             </form>
                                         </div>

@@ -14,7 +14,7 @@ const StudentSchema = new Schema({
         type:String,
         required:true
     },
-    class:{
+    class_id:{
         type:String,
         required:true
     },

@@ -16,15 +16,18 @@ const ClassSchema = new Schema({
     },
     tuition1: { // first term tuition
         type:String,
-        required:false
+        required:false,
+        default:''
     },
     tuition2: { // second term tuition
         type:String,
-        required:false
+        required:false,
+        default:''
     },
     tuition3: { // third term tuition
         type:String,
-        required:false
+        required:false,
+        default:''
     }
 });
 

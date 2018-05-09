@@ -358,6 +358,7 @@ router.get('/assign_class_tuition',EnsureLoggedIn,(req,res,next)=>{
         if(err){
             res.redirect('/');
         }else{
+            // console.log(classes);
             res.render('dashboard/assign_class_tuition',{title:'Assign Class Tuitions',error:error,school:school,classes:classes});
         }
     });
@@ -368,32 +369,30 @@ router.get('/class_tuitions',EnsureLoggedIn,(req,res,next)=>{
     var school = req.session.user_session;
 
     // fetch classes
-    Class.find({school_id:school.school_id},(err,classes)=>{
+    Class.find({school_id:school._id},(err,classes)=>{
         if(err){
             res.redirect('/');
         }else{
+            console.log(classes);
             res.render('dashboard/class_tuitions',{title:'Class Tuitions',school:school, classes:classes});
         }
     })
 })
 
-
-
 // update tuition for class
 router.post('/update_class_tuition', (req, res, next) => {
-    if (req.body.class == undefined || req.body.school == undefined || req.body.tuitions == undefined) {
-        req.session.error = "Please Fill all Fields";
-        res.redirect('/assign_class_tuition');
-    } else {
-        Class.findOneAndUpdate({ class_id: req.body.class, school_id: req.body.school }, { $set: { tuition1:req.body.tuition1, tuition2: req.body.tuition2, tuition3: req.body.tuition3  } }, { new: true }, (err, cls) => {
+    console.log(req.body);
+    // return;
+        Class.findOneAndUpdate({ _id: req.body.class, school_id: req.body.school }, { $set: { tuition1:req.body.tuition1, tuition2: req.body.tuition2, tuition3: req.body.tuition3  } }, { new: true }, (err, cls) => {
+            
             if (err) {
                 req.session.error = "Sorry, Unable to Assign Tuition";
                 res.redirect('/assign_class_tuition');
             } else {
+                console.log(cls);
                 res.redirect('/class_tuitions');
             }
         });
-    }
 })
 
 // 
@@ -478,6 +477,7 @@ router.post('/register_student', (req, res, next) => {
                 });
                 Student.create(newStudent, (err, student) => {
                     if (err) {
+                        console.log(err);
                         req.session.error = "Sorry,Unable to add Student";
                         res.redirect('/register_student');
                     } else {
