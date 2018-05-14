@@ -110,9 +110,11 @@ router.get('/register', (req, res, next) => {
 router.get('/students', EnsureLoggedIn, (req, res, next) => {
     var school = req.session.user_session;
     var school_id = req.session.user_session._id;
-    Student.find({ school_id: school_id }, (err, students) => {
-        if (err) throw err;
+    Student.find().populate('parent_id','name',Parent).populate('class_id','name',Class).then((students)=>{
         res.render('dashboard/students', { title: 'Students', students: students, school,school });
+    }).catch((err)=>{
+        console.log(err);
+        res.redirect('/');
     })
 })
 

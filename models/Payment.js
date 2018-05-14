@@ -6,6 +6,14 @@ const PaymentSchema = new Schema({
         type:String,
         required:true
     },
+    payer_id:{
+        type:String,
+        required:true
+    },
+    payer_name:{
+        type:String,
+        required:true
+    },
     student_id:{
         type:String,
         required:true
