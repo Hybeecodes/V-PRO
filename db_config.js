@@ -8,4 +8,4 @@ mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_USER}@ds1192
     }else{
         console.log('connected to database successfully');
     }
-})
+}) 
