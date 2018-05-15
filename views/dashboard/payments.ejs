@@ -65,16 +65,26 @@
                                                         <th>Email</th>
                                                         <th>Amount</th>
                                                         <th>Status</th>
+                                                        <th>Session</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <% if(payments){
-                                                        for(let i=0;i<teachers.length;i++){ %>
+                                                        for(let i=0;i<payments.length;i++){ %>
                                                             <tr>
-                                                                <td><%= payments[i].payer_name %></td>
+                                                                <td><%= payments[i].student.name %></td>
                                                                 <td><%= payments[i].email %></td>
                                                                 <td><%= payments[i].amount %></td>
-                                                                <td><%= payments[i].status %></td>
+                                                                <td>
+                                                                    <% if(payments[i].status == 0){ %>
+                                                                        Full Payment
+                                                                    <% }else if(payments[i].status == 1){ %>
+                                                                        Part Payment
+                                                                   <% }else if(payments[i].status == 2){ %>
+                                                                        Balance
+                                                                    <% } %>
+                                                                    <%=  %></td>
+                                                                <td><%= payments[i].session.name %></td>
                                                             </tr>
                                                      <%   }
                                                     } %>
@@ -82,7 +92,7 @@
                                                 
                                             </table>
                                             <div style="padding-top: 10px;">
-                                                    <a href="/add_teacher" class="btn btn-primary pull-left btn-sm">Add New Teachers</a>
+                                                    <a href="/pay_tuition" class="btn btn-primary pull-left btn-sm">Add New Payment</a>
                                             </div>
                                             
                                         </div>

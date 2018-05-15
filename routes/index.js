@@ -110,6 +110,12 @@ router.get('/register', (req, res, next) => {
 router.get('/students', EnsureLoggedIn, (req, res, next) => {
     var school = req.session.user_session;
     var school_id = req.session.user_session._id;
+    // schoolCtrl.getStudents()
+    // schoolCtrl.getStudents(school_id).then((students)=>{
+    //     console.log(students)
+    // }).catch((err)=>{
+    //     console.log(err);
+    // })
     Student.find().populate('parent_id','name',Parent).populate('class_id','name',Class).then((students)=>{
         res.render('dashboard/students', { title: 'Students', students: students, school,school });
     }).catch((err)=>{
@@ -119,7 +125,7 @@ router.get('/students', EnsureLoggedIn, (req, res, next) => {
 })
 
 router.get('/register_student', EnsureLoggedIn, (req, res, next) => {
-    var school = req.session.user_session;
+        var school = req.session.user_session;
         var school_id = req.session.user_session._id;
         const error = req.session.error;
         req.session.error = null;
@@ -137,7 +143,22 @@ router.get('/register_student', EnsureLoggedIn, (req, res, next) => {
     //   res.render('dashboard/register_parent',{ title: 'New Parent'});
     // })
 router.get('/pay_tuition', (req, res, next) => {
-    res.render('dashboard/pay_tuition', { title: 'Pay Tuition' });
+    var school = req.session.user_session;
+    var school_id = req.session.user_session._id;
+    const error = req.session.error;
+    req.session.error = null;
+    Student.find({school_id:school_id}).then((students)=>{
+        Session.find({school_id:school_id}).then((sessions)=>{
+            res.render('dashboard/pay_tuition', { title: 'Pay Tuition',school:school, sessions:sessions, students:students, error:error });
+        }).catch((err)=>{
+            console.log(err);
+            res.redirect('/');
+        });
+    }).catch((err)=>{
+        console.log(err);
+            res.redirect('/');
+    })
+    
 })
 router.get('/add_subject', (req, res, next) => {
     res.render('dashboard/add_subject', { title: 'Add Subject' });
@@ -438,19 +459,36 @@ router.post('/add_teacher', (req, res, next) => {
 
 //add new tuition payment
 router.post('/pay_tuition', (req, res, next) => {
-        if (req.body.school_id == undefined || req.body.student_id == undefined || req.body.session_id == undefined || req.body.amount == undefined || req.body.staff_role == undefined) {
-            res.json({ status: 0, message: "Sorry, One or more credentials missing" });
+    console.log(req.body)
+        if (req.body.school == undefined || req.body.student == undefined || req.body.session == undefined || req.body.amount == undefined ) {
+            req.session.error = "Please, Fill out All Fields !";
+            res.redirect('/pay_tuition');
         } else {
-            const newPayment = req.body;
+            const newPayment = {
+                student: req.body.student,
+                school: req.body.school,
+                email:req.body.email,
+                amount: req.body.amount,
+                session:req.body.session,
+                status: req.body.status
+            };
             Payment.create(newPayment, (err, payment) => {
                 if (err) {
-                    res.json({ status: 0, message: "Sorry, Unable to Add New Tuition" });
+                    req.session.error = "Sorry, Unable to Add New Tuition !";
+                    res.redirect('/pay_tuition');
                 } else {
-                    res.json({ status: 1, message: payment });
+                    res.redirect('/payments');
                 }
             })
         }
     })
+
+router.get('/payments',(req,res,next)=>{
+    const school = req.session.user_session;
+    Payment.find({school: school._id}).populate('student','name',Student).populate('session','name',Session).then((payments)=>{
+        res.render('dashboard/payments',{school:school, title:'Payments',payments:payments});
+    })
+})
     // add new student
 router.post('/register_student', (req, res, next) => {
     if (req.body.name == undefined || req.body.address == undefined || req.body.email == undefined || req.body.gender == undefined || req.body.phone == undefined || req.body.parent == undefined || req.body.school == undefined || req.body.class == undefined) {

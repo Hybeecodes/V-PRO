@@ -2,23 +2,19 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const PaymentSchema = new Schema({
-    school_id:{
+    school:{
         type:String,
         required:true
     },
-    payer_id:{
+    student:{
         type:String,
         required:true
     },
-    payer_name:{
+    email:{
         type:String,
         required:true
     },
-    student_id:{
-        type:String,
-        required:true
-    },
-    session_id:{
+    session:{
         type:String,
         required:true
     },
@@ -26,9 +22,13 @@ const PaymentSchema = new Schema({
         type:Number,
         required:true
     },
-    staff_role:{
+    status:{
         type:Number,
         required:true
+    },
+    staff_role:{
+        type:Number,
+        required:false
     },
     staff_id:{
         type:String,

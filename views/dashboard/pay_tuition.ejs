@@ -30,7 +30,7 @@
 <body class="fix-header fix-sidebar">
         <div class="preloader">
                 <svg class="circular" viewBox="25 25 50 50">
-                    <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10" /></svg>
+                    <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10" /> </svg>
             </div>
             <div id="main-wrapper">
                 <%- include('../partials/header') %>
@@ -51,47 +51,59 @@
                 <!-- End Bread crumb -->
                     <div class="container-fluid">
                         <!-- Start Page Content -->
-                       <div class="row">
-                            <div class="col-md-12">
-                                <div class="card">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card" style="width: 70%; margin: auto;">
                                     <div class="card-body">
-                                        <h4 class="card-title">Data Export</h4>
-                                        <h6 class="card-subtitle">Export data to Copy, CSV, Excel, PDF & Print</h6>
-                                        <div class="table-responsive m-t-40">
-                                            <table id="example23" class="display nowrap table table-hover table-striped table-bordered" cellspacing="0" width="100%">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Payer's Name</th>
-                                                        <th>Email</th>
-                                                        <th>Amount</th>
-                                                        <th>Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <% if(payments){
-                                                        for(let i=0;i<teachers.length;i++){ %>
-                                                            <tr>
-                                                                <td><%= payments[i].payer_name %></td>
-                                                                <td><%= payments[i].email %></td>
-                                                                <td><%= payments[i].amount %></td>
-                                                                <td><%= payments[i].status %></td>
-                                                            </tr>
-                                                     <%   }
-                                                    } %>
-                                                </tbody>
-                                                
-                                            </table>
-                                            <div style="padding-top: 10px;">
-                                                    <a href="/add_teacher" class="btn btn-primary pull-left btn-sm">Add New Teachers</a>
-                                            </div>
-                                            
+                                        <div class="basic-form">
+                                                <% if(error){ %>
+                                                    <div id="error" class="alert alert-danger">
+                                                        <%= error %>
+                                                    </div>
+                                                <% } %>
+                                            <form action="/pay_tuition" method="POST">
+                                                <div class="form-group">
+                                                    <label>Student</label>
+                                                    <select name="student" class="form-control" id="student" required>
+                                                        <% students.forEach(function(student){ %>
+                                                            <option value="<%= student._id %>"><%= student.name %></option>
+                                                        <% }) %>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Email address</label>
+                                                    <input type="email" class="form-control" name="email" placeholder="Email" required>
+                                                </div>
+
+                                                <div class="form-group">
+                                                        <label>Session</label>
+                                                        <select name="session" class="form-control" id="session">
+                                                            <% sessions.forEach(function(session){ %>
+                                                                <option value="<%= session._id %>"><%= session.name %></option>
+                                                            <% }) %>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Amount Paid</label>
+                                                        <input type="number" class="form-control" name="amount" placeholder="Amount" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="">Status</label>
+                                                        <select name="status" class="form-control" id="status" required>
+                                                            <option value="0">Full Payment</option>
+                                                            <option value="1">Part Payment</option>
+                                                            <option value="2">Balance</option>
+                                                        </select>
+                                                    </div>
+                                                    <input type="hidden" name="school" value="<%= school._id %>">
+                                                    
+                                                <button type="submit" class="btn btn-primary">Add Payment</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                       </div>
-                       
+                        </div>
                         <!-- End PAge Content -->
                     </div>
                 </div>
@@ -133,14 +145,5 @@
 
     <script src="javascripts/custom.min.js"></script>
 
-    <script src="javascripts/lib/datatables/datatables.min.js"></script>
-    <script src="javascripts/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
-    <script src="javascripts/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/buttons.flash.min.js"></script>
-    <script src="javascripts/lib/datatables/cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
-    <script src="javascripts/lib/datatables/cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
-    <script src="javascripts/lib/datatables/cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
-    <script src="javascripts/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
-    <script src="javascripts/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/buttons.print.min.js"></script>
-    <script src="javascripts/lib/datatables/datatables-init.js"></script>
 
 </html>
